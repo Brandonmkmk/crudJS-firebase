@@ -1,9 +1,11 @@
 
- import {getTasks, onGetTasks, saveTasks, deleteTask} from './firebase.js'
+ import {getTasks, onGetTasks, saveTasks, deleteTask, getTask} from './firebase.js'
 
  
  const taskForm = document.getElementById('task-form');
  const taskContainer = document.getElementById('tasks-container')
+
+ let editStatus = false;
 
  window.addEventListener('DOMContentLoaded', async () => {
    onGetTasks((querySnapshot)=>{
@@ -15,6 +17,7 @@
                 <h3>${task.title}</h3>
                 <p>${task.description}</p>
                 <button class = 'btn-delete' data-id="${doc.id}">Eliminar</button>
+                <button class = 'btn-edit' data-id="${doc.id}">Editar</button>
          </div>
          `;
          
@@ -31,6 +34,20 @@
            
          })
       })
+
+      const btnsEdit = taskContainer.querySelectorAll('.btn-edit')
+      btnsEdit.forEach((btn) => {
+         btn.addEventListener('click', async (e) => {
+            const doc = await getTask(e.target.dataset.id)
+            const task = doc.data()
+
+            taskForm['task-title'].value = task.title
+            taskForm['task-description'].value = task.description
+
+            editStatus = true
+            
+         })
+      })
       
    });
 
@@ -45,7 +62,13 @@
     const title= taskForm['task-title']
     const description= taskForm['task-description']
 
-    saveTasks(title.value, description.value)
+    if(editStatus){
+      console.log('actualizando')
+    }else{
+      saveTasks(title.value, description.value)
+    }
+
+    
 
     taskForm.reset()
  })
