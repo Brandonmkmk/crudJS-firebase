@@ -1,11 +1,12 @@
 
- import {getTasks, onGetTasks, saveTasks, deleteTask, getTask} from './firebase.js'
+ import {getTasks, onGetTasks, saveTasks, deleteTask, getTask, updateTask} from './firebase.js'
 
  
  const taskForm = document.getElementById('task-form');
  const taskContainer = document.getElementById('tasks-container')
 
  let editStatus = false;
+ let id = '';
 
  window.addEventListener('DOMContentLoaded', async () => {
    onGetTasks((querySnapshot)=>{
@@ -44,7 +45,10 @@
             taskForm['task-title'].value = task.title
             taskForm['task-description'].value = task.description
 
-            editStatus = true
+            editStatus = true;
+            id = doc.id
+
+            taskForm['guardar'].innerText = 'actualizando'
             
          })
       })
@@ -62,10 +66,15 @@
     const title= taskForm['task-title']
     const description= taskForm['task-description']
 
-    if(editStatus){
-      console.log('actualizando')
+    if(!editStatus){
+      saveTasks(title.value, description.value);
     }else{
-      saveTasks(title.value, description.value)
+      updateTask(id, {
+         title: title.value,
+         description: description.value,
+      });
+
+      editStatus = false;
     }
 
     
